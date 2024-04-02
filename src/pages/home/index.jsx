@@ -5,23 +5,29 @@ import * as S from "./home.styled";
 const Home = () => {
   const [number, setNumber] = useState("");
   const [incomeCall, setIncomeCall] = useState(false);
+  const [session, setSession] = useState(null);
+  console.log("🚀 ~ Home ~ session:", session);
+  const [error, setError] = useState("");
 
-  const registeredUserData = JSON.parse(localStorage.getItem("userData"));
+  // const registeredUserData = JSON.parse(localStorage.getItem("userData"));
+  // var socket = new JsSIP.WebSocketInterface(
+  //   `wss:/${registeredUserData.server}`
+  // );
+  // var configuration = {
+  //   sockets: [socket],
+  //   uri: `sip:${registeredUserData.login}@voip.uiscom.ru`,
+  //   password: `${registeredUserData.password}`,
+  // };
 
-  const handleDialPadClick = (value) => {
-    setNumber((prevNumber) => prevNumber + value);
+  const callOptions = {
+    mediaConstraints: { audio: true, video: false },
   };
-  const handleClearInput = () => {
-    setNumber("");
-  };
 
-  var socket = new JsSIP.WebSocketInterface(
-    `wss:/${registeredUserData.server}`
-  );
+  var socket = new JsSIP.WebSocketInterface(`wss:/voip.uiscom.ru`);
   var configuration = {
     sockets: [socket],
-    uri: `sip:${registeredUserData.login}@voip.uiscom.ru`,
-    password: `${registeredUserData.password}`,
+    uri: `sip:0347052@voip.uiscom.ru`,
+    password: `zzc7PvfykF`,
   };
 
   var coolPhone = new JsSIP.UA(configuration);
@@ -34,17 +40,40 @@ const Home = () => {
     console.log("disconnected");
   });
   coolPhone.on("newRTCSession", function (e) {
-    console.log(e);
-    console.log("RTCsession");
+    let session = e.session;
+    setSession(session);
     setIncomeCall(true);
   });
   coolPhone.on("newMessage", function () {
     console.log("message");
   });
-
+  // запуск телефона
   coolPhone.start();
 
- 
+  const handleDialPadClick = (value) => {
+    setNumber((prevNumber) => prevNumber + value);
+  };
+  const handleClearInput = () => {
+    setNumber("");
+  };
+
+  // отбой звонка
+  const handleDeclineCall = () => {
+    if (session) {
+      session.terminate();
+      setIncomeCall(false);
+    }
+  };
+  // вызов клиента
+  const handleInitCall = () => {
+    if (number) {
+      console.log("object", number);
+      const session = coolPhone.call(`sip:${number}`, callOptions);
+      setSession(session);
+    } else {
+      setError("Введите номер клиента");
+    }
+  };
   // var session = coolPhone.call("sip:bob@example.com", options);
 
   // const handleOutGoingCall = () => {
@@ -162,7 +191,8 @@ const Home = () => {
                 </S.DialPadChar>
               </S.DialPad>
             </div>
-            <button>Call</button>
+            <div style={{ color: "coral" }}>{error}</div>
+            <button onClick={handleInitCall}>Call</button>
           </div>
         </>
       ) : (
@@ -172,7 +202,8 @@ const Home = () => {
           </div>
           <div>
             <button>Answer</button>
-            <button>Decline</button>
+            <button onClick={handleDeclineCall}>Decline</button>
+            <button onClick={() => setIncomeCall(false)}>Ignore</button>
           </div>
         </>
       )}
