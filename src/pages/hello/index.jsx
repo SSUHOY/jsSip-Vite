@@ -1,13 +1,15 @@
+import { Button } from "antd";
 import { Link } from "react-router-dom";
+import * as S from "./hello.styled";
 
 const Hello = () => {
   return (
-    <div>
-      <p style={{ color: "black" }}> Hello form extension!</p>
+    <S.HelloWrapper>
+      <p style={{ color: "black" }}>Hello!</p>
       <Link to="/login">
-        <button>Click to start</button>
+        <Button type="primary">Click to start calling</Button>
       </Link>
-    </div>
+    </S.HelloWrapper>
   );
 };
 

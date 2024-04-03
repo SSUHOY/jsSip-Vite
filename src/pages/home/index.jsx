@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import JsSIP from "jssip";
-import * as S from "./home.styled";
+import IncomingCall from "../../components/calls/incoming";
+import Dialing from "../../components/dialing";
+import OutGoingCall from "../../components/calls/outgoing";
+import CurrentCallUi from "../../components/current";
 
 const Home = () => {
   const [number, setNumber] = useState("");
   const [incomeCall, setIncomeCall] = useState(false);
+  const [outGoingCall, setOutGoingCall] = useState(false);
+  const [userOnline, setUserOnline] = useState(false);
+  const [callIsAnswered, setCallIsAnswered] = useState(false);
   const [session, setSession] = useState(null);
-  console.log("🚀 ~ Home ~ session:", session);
-  const [error, setError] = useState("");
+  const [sessionStatus, setSessionStatus] = useState("");
+  const [calls, setCallsList] = useState([]);
+  const [phone, setPhone] = useState(null);
 
+  // // ДЛЯ РЕГИСТРАЦИИ
   // const registeredUserData = JSON.parse(localStorage.getItem("userData"));
   // var socket = new JsSIP.WebSocketInterface(
   //   `wss:/${registeredUserData.server}`
@@ -19,192 +27,203 @@ const Home = () => {
   //   password: `${registeredUserData.password}`,
   // };
 
+  // Обработка событии исх. звонка
+  const eventHandlers = {
+    progress: function (e) {
+      console.log("call is in progress", e);
+    },
+    failed: function (e) {
+      console.log("call failed with cause: " + e.cause);
+    },
+    ended: function (e) {
+      console.log("call ended with cause: " + e.cause);
+    },
+    confirmed: function (e) {
+      console.log("call confirmed" + e);
+      var localStream = session.connection.getLocalStreams()[0];
+      var dtmfSender = session.connection.createDTMFSender(
+        localStream.getAudioTracks()[0]
+      );
+      session.sendDTMF = function (tone) {
+        dtmfSender.insertDTMF(tone);
+      };
+      setCallIsAnswered(true);
+    },
+  };
+
   const callOptions = {
+    eventHandlers: eventHandlers,
     mediaConstraints: { audio: true, video: false },
+    pcConfig: {
+      hackStripTcp: true,
+      rtcpMuxPolicy: "negotiate",
+      iceServers: [],
+    },
+    rtcOfferConstraints: {
+      offerToReceiveAudio: 1, // Принимаем только аудио
+      offerToReceiveVideo: 0,
+    },
   };
 
-  var socket = new JsSIP.WebSocketInterface(`wss:/voip.uiscom.ru`);
-  var configuration = {
-    sockets: [socket],
-    uri: `sip:0347052@voip.uiscom.ru`,
-    password: `zzc7PvfykF`,
+  const startPhone = () => {
+    const socket = new JsSIP.WebSocketInterface(`wss:/voip.uiscom.ru`);
+    const configuration = {
+      sockets: [socket],
+      uri: `sip:0347052@voip.uiscom.ru`,
+      password: `zzc7PvfykF`,
+    };
+    const phone = new JsSIP.UA(configuration);
+    setPhone(phone);
+    phone?.start();
+    phoneInitFn(phone, configuration);
   };
 
-  var coolPhone = new JsSIP.UA(configuration);
+  function phoneInitFn(phone, configuration) {
+    const remoteAudio = new window.Audio();
+    remoteAudio.autoplay = true;
+    remoteAudio.crossOrigin = "anonymous";
+    if (configuration.uri && configuration.password) {
+      phone?.on("registrationFailed", function (ev) {
+        alert("Registering on SIP server failed with error: " + ev.cause);
+        configuration.uri = null;
+        configuration.password = null;
+      });
+      phone?.on("connected", function () {
+        setUserOnline(true);
+        console.log("Подключение успешно");
+      });
+      phone?.on("disconnected", function () {
+        setUserOnline(false);
+      });
+      phone?.on("newRTCSession", function (e) {
+        console.log("проверка сессиииии");
+        let newSession = e.session;
+        setSession(newSession);
+        if (session) {
+          session.terminate();
+        }
+        if (newSession._direction === "incoming") {
+          console.log("входящий звонок");
+          setIncomeCall(true);
+          addIncomingCall(session._request.from._uri._user);
+          // let audio = new Audio("./tones/zvonok.mp3");
+          // audio.play();
+          console.log("object");
+        }
+        if (newSession._direction === "outgoing") {
+          console.log("исходящий звонок");
+          setOutGoingCall(true);
+          addOutGoingCall(session._request.to._uri._user);
+        }
+        session.on("ended", function () {
+          sessionStatus("Call ended");
+          setOutGoingCall(false);
+          setIncomeCall(false);
+          setCallIsAnswered(false);
+        });
+        session.on("connecting", function () {
+          setSessionStatus("Connecting");
+        });
+        session.on("peerconnection", (e) => {
+          console.log("peerconnection", e);
+          const peerconnection = e.peerconnection;
 
-  coolPhone.on("connected", function () {
-    console.log("Подключение удалось");
-  });
+          peerconnection.onaddstream = function (e) {
+            console.log("addstream", e);
+            remoteAudio.srcObject = e.stream;
+            remoteAudio.play();
+          };
 
-  coolPhone.on("disconnected", function () {
-    console.log("disconnected");
-  });
-  coolPhone.on("newRTCSession", function (e) {
-    let session = e.session;
-    setSession(session);
-    setIncomeCall(true);
-  });
-  coolPhone.on("newMessage", function () {
-    console.log("message");
-  });
-  // запуск телефона
-  coolPhone.start();
-
-  const handleDialPadClick = (value) => {
-    setNumber((prevNumber) => prevNumber + value);
-  };
-  const handleClearInput = () => {
-    setNumber("");
-  };
-
-  // отбой звонка
-  const handleDeclineCall = () => {
-    if (session) {
-      session.terminate();
-      setIncomeCall(false);
+          if (remoteAudio.current) {
+            console.log("remote audio already exists");
+            const remoteAudio = remoteAudio.current;
+            remoteAudio.srcObject = e.stream;
+            console.log("включаю play");
+            remoteAudio.play();
+          }
+          const remoteStream = new MediaStream();
+          console.log(peerconnection.getReceivers());
+          peerconnection.getReceivers().forEach(function (receiver) {
+            console.log(receiver);
+            remoteStream.addTrack(receiver.track);
+          });
+        });
+      });
     }
+  }
+
+  // // запуск телефона
+  useEffect(() => {
+    startPhone();
+  }, []);
+
+  const addIncomingCall = (number) => {
+    const newCall = { type: "incoming", number };
+    setCallsList([...calls, newCall]);
+    localStorage.setItem("callHistory", JSON.stringify(calls));
   };
-  // вызов клиента
-  const handleInitCall = () => {
-    if (number) {
-      console.log("object", number);
-      const session = coolPhone.call(`sip:${number}`, callOptions);
-      setSession(session);
-    } else {
-      setError("Введите номер клиента");
-    }
+  const addOutGoingCall = (number) => {
+    const newCall = { type: "outgoing", number };
+    setCallsList([...calls, newCall]);
+    localStorage.setItem("callHistory", JSON.stringify(calls));
   };
-  // var session = coolPhone.call("sip:bob@example.com", options);
-
-  // const handleOutGoingCall = () => {
-  //   session.on("connecting", function () {
-  //     console.log("Устанавливается соединение...");
-  //   });
-  // };
-
-  // let session = coolPhone.call("sip:bob@example.com", {
-  //   mediaConstraints: { audio: true, video: false },
-  //   pcConfig: {
-  //     iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }],
-  //   },
-  // });
-
-  // session.on("connecting", function () {
-  //   console.log("Устанавливается соединение...");
-  // });
-
-  // session.on("failed", function (e) {
-  //   console.log("Ошибка вызова:", e);
-  // });
-
-  // session.on("ended", function () {
-  //   console.log("Звонок завершен");
-  // });
-
-  // session.on("confirmed", function () {
-  //   console.log("Звонок подтвержден");
-  // });
 
   return (
     <div>
-      {!incomeCall ? (
+      {!incomeCall && !outGoingCall && !callIsAnswered && (
+        <Dialing
+          userOnline={userOnline}
+          number={number}
+          session={session}
+          setNumber={setNumber}
+          phone={phone}
+          setOutGoingCall={setOutGoingCall}
+          setSession={setSession}
+          callOptions={callOptions}
+          calls={calls}
+        />
+      )}
+      {incomeCall && !outGoingCall && !callIsAnswered && (
         <>
-          <div>
-            <p>Type sip number</p>
-          </div>
-          <div>
-            <input type="text" value={number} readOnly />
-            <button onClick={handleClearInput}>Clear</button>
-            <div id="inCallButtons">
-              <S.DialPad id="dialPad">
-                <S.DialPadChar
-                  className="dialpad-char"
-                  data-value="1"
-                  onClick={() => handleDialPadClick("1")}>
-                  1
-                </S.DialPadChar>
-                <S.DialPadChar
-                  className="dialpad-char"
-                  data-value="2"
-                  onClick={() => handleDialPadClick("2")}>
-                  2
-                </S.DialPadChar>
-                <S.DialPadChar
-                  className="dialpad-char"
-                  data-value="3"
-                  onClick={() => handleDialPadClick("3")}>
-                  3
-                </S.DialPadChar>
-                <S.DialPadChar
-                  className="dialpad-char"
-                  data-value="4"
-                  onClick={() => handleDialPadClick("4")}>
-                  4
-                </S.DialPadChar>
-                <S.DialPadChar
-                  className="dialpad-char"
-                  data-value="5"
-                  onClick={() => handleDialPadClick("5")}>
-                  5
-                </S.DialPadChar>
-                <S.DialPadChar
-                  className="dialpad-char"
-                  data-value="6"
-                  onClick={() => handleDialPadClick("6")}>
-                  6
-                </S.DialPadChar>
-                <S.DialPadChar
-                  className="dialpad-char"
-                  data-value="7"
-                  onClick={() => handleDialPadClick("7")}>
-                  7
-                </S.DialPadChar>
-                <S.DialPadChar
-                  className="dialpad-char"
-                  data-value="8"
-                  onClick={() => handleDialPadClick("8")}>
-                  8
-                </S.DialPadChar>
-                <S.DialPadChar
-                  className="dialpad-char"
-                  data-value="9"
-                  onClick={() => handleDialPadClick("9")}>
-                  9
-                </S.DialPadChar>
-                <S.DialPadChar
-                  className="dialpad-char"
-                  data-value="*"
-                  onClick={() => handleDialPadClick("*")}>
-                  *
-                </S.DialPadChar>
-                <S.DialPadChar
-                  className="dialpad-char"
-                  data-value="0"
-                  onClick={() => handleDialPadClick("0")}>
-                  0
-                </S.DialPadChar>
-                <S.DialPadChar
-                  className="dialpad-char"
-                  data-value="#"
-                  onClick={() => handleDialPadClick("#")}>
-                  #
-                </S.DialPadChar>
-              </S.DialPad>
-            </div>
-            <div style={{ color: "coral" }}>{error}</div>
-            <button onClick={handleInitCall}>Call</button>
-          </div>
+          <IncomingCall
+            session={session}
+            callOptions={callOptions}
+            setIncomeCall={setIncomeCall}
+            setCallIsAnswered={setCallIsAnswered}
+          />
         </>
-      ) : (
+      )}
+      {outGoingCall && !incomeCall && !callIsAnswered && (
         <>
-          <div>
-            <p>Income call</p>
-          </div>
-          <div>
-            <button>Answer</button>
-            <button onClick={handleDeclineCall}>Decline</button>
-            <button onClick={() => setIncomeCall(false)}>Ignore</button>
-          </div>
+          <OutGoingCall
+            session={session}
+            setOutGoingCall={setOutGoingCall}
+            number={number}
+            setCallIsAnswered={setCallIsAnswered}
+            sessionStatus={sessionStatus}
+          />
+        </>
+      )}
+      {callIsAnswered && !incomeCall && outGoingCall && (
+        <>
+          {/* Исходящий звонок */}
+          <CurrentCallUi
+            session={session}
+            setIncomingCall={setIncomeCall}
+            setOutGoingCall={setOutGoingCall}
+            setCallIsAnswered={setCallIsAnswered}
+          />
+        </>
+      )}
+      {callIsAnswered && incomeCall && (
+        <>
+          {/* Входящий звонок */}
+          <CurrentCallUi
+            session={session}
+            setIncomeCall={setIncomeCall}
+            setOutGoingCall={setOutGoingCall}
+            setCallIsAnswered={setCallIsAnswered}
+          />
         </>
       )}
     </div>
