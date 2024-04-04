@@ -8,11 +8,6 @@ const CurrentCallUi = ({ session, sessionStatus, onClickMute, mute }) => {
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
 
-  session.on("confirmed", function () {
-    console.log("object confirmed");
-    startTimer();
-  });
-
   CurrentCallUi.propTypes = {
     number: PropTypes.object.string,
     session: PropTypes.object.isRequired,
@@ -32,6 +27,10 @@ const CurrentCallUi = ({ session, sessionStatus, onClickMute, mute }) => {
   };
 
   useEffect(() => {
+    if (sessionStatus === "In Call") {
+      console.log("Старт таймера");
+      startTimer();
+    }
     let interval = null;
     if (isActive) {
       interval = setInterval(() => {
@@ -41,7 +40,7 @@ const CurrentCallUi = ({ session, sessionStatus, onClickMute, mute }) => {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [isActive, seconds, session]);
+  }, [isActive, seconds, session, sessionStatus]);
 
   const startTimer = () => {
     setIsActive(true);
@@ -50,11 +49,6 @@ const CurrentCallUi = ({ session, sessionStatus, onClickMute, mute }) => {
   const stopTimer = () => {
     setIsActive(false);
   };
-
-  // const resetTimer = () => {
-  //   setSeconds(0);
-  //   setIsActive(false);
-  // };
 
   return (
     <>

@@ -296,6 +296,7 @@ const Home = () => {
             onClickMute={muteMic}
             mute={mute}
             sessionStatus={sessionStatus}
+            callOptions={callOptions}
           />
         </>
       )}
@@ -310,6 +311,7 @@ const Home = () => {
             onClickMute={muteMic}
             mute={mute}
             sessionStatus={sessionStatus}
+            callOptions={callOptions}
           />
         </>
       )}
