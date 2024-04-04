@@ -2,17 +2,14 @@ import { Button } from "antd";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import * as S from "./current.styled";
+import { AudioMutedOutlined, AudioOutlined } from "@ant-design/icons";
 
-const CurrentCallUi = ({
-  session,
-  setOutGoingCall,
-  setCallIsAnswered,
-  setIncomeCall,
-}) => {
+const CurrentCallUi = ({ session, sessionStatus, onClickMute, mute }) => {
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
 
   session.on("confirmed", function () {
+    console.log("object confirmed");
     startTimer();
   });
 
@@ -22,15 +19,14 @@ const CurrentCallUi = ({
     setOutGoingCall: PropTypes.func.isRequired,
     setCallIsAnswered: PropTypes.func.isRequired,
     setIncomeCall: PropTypes.func.isRequired,
+    onClickMute: PropTypes.func,
+    mute: PropTypes.bool,
+    sessionStatus: PropTypes.string,
   };
 
   const handleDeclineCall = () => {
     if (session) {
-      setOutGoingCall(false);
-      setIncomeCall(false);
-      setCallIsAnswered(false);
       stopTimer();
-      resetTimer();
       session.terminate();
     }
   };
@@ -52,21 +48,21 @@ const CurrentCallUi = ({
   };
 
   const stopTimer = () => {
-    console.log("dsdsdsd");
     setIsActive(false);
   };
 
-  const resetTimer = () => {
-    setSeconds(0);
-    setIsActive(false);
-  };
+  // const resetTimer = () => {
+  //   setSeconds(0);
+  //   setIsActive(false);
+  // };
 
   return (
     <>
       <div>
-        <div>
+        <S.CurrentCallInformation>
+          <h4>{sessionStatus}...</h4>
           <p>+{session._request.from._uri._user}</p>
-        </div>
+        </S.CurrentCallInformation>
         <div>
           <S.CallTimer>
             {Math.floor(seconds / 60)
@@ -76,9 +72,19 @@ const CurrentCallUi = ({
           </S.CallTimer>
         </div>
       </div>
-      <div>
+      <S.CallHandlers>
+        <Button
+          onClick={onClickMute}
+          style={{
+            background: "#FFFFFF",
+
+            color: "black",
+            width: 78,
+          }}>
+          {mute ? <AudioMutedOutlined /> : <AudioOutlined />}
+        </Button>
         <Button onClick={handleDeclineCall}>Decline</Button>
-      </div>
+      </S.CallHandlers>
     </>
   );
 };

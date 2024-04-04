@@ -42,7 +42,6 @@ export const CallItem = styled.div`
   gap: 55px;
   padding: 10px;
   align-items: center;
-  border-radius: 10px;
   border-bottom: 1px solid black;
   border-top: 1px solid black;
 `;

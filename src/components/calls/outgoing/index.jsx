@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import * as S from "./outgoingCall.styled";
 import { Button } from "antd";
+import { LoadingOutlined, RollbackOutlined } from "@ant-design/icons";
 
 const OutGoingCall = ({ number, session, setOutGoingCall, sessionStatus }) => {
   OutGoingCall.propTypes = {
@@ -20,7 +21,15 @@ const OutGoingCall = ({ number, session, setOutGoingCall, sessionStatus }) => {
   return (
     <>
       <S.OutGoingCallHeader>
-        <h4>{sessionStatus}...</h4>
+        <h4>
+          {sessionStatus === "Busy" ? (
+            <RollbackOutlined />
+          ) : (
+            <LoadingOutlined />
+          )}
+          <pre />
+          {sessionStatus}...
+        </h4>
         <p>Outgoing call to: {number}</p>
       </S.OutGoingCallHeader>
       <div>

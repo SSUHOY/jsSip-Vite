@@ -32,7 +32,7 @@ const Dialing = ({
     setSession: PropTypes.func.isRequired,
     setOutGoingCall: PropTypes.func.isRequired,
     calls: PropTypes.array.isRequired,
-    session: PropTypes.object.isRequired,
+    session: PropTypes.object,
   };
   // инпут набора номера
   const handleDialPadClick = (value) => {
