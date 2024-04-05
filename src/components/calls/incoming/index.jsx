@@ -8,16 +8,19 @@ const IncomingCall = ({
   callOptions,
   setIncomeCall,
   setCallIsAnswered,
+  remoteAudioRef,
 }) => {
   IncomingCall.propTypes = {
     session: PropTypes.object.isRequired,
     callOptions: PropTypes.object.isRequired,
     setIncomeCall: PropTypes.func.isRequired,
     setCallIsAnswered: PropTypes.func,
+    remoteAudioRef: PropTypes.string,
   };
 
   // отбой звонка
   const handleDeclineCall = () => {
+    remoteAudioRef.current.pause();
     session.terminate();
     setIncomeCall(false);
   };
@@ -34,7 +37,7 @@ const IncomingCall = ({
           <BellOutlined style={{ fontSize: 30 }} />
         </S.BellContainer>
         <p>Incoming call from:</p>
-        <h3>+{session ? session._request.from._uri._user : "Unknown"}</h3>
+        <h3>#{session ? session._request.from._uri._user : "Unknown"}</h3>
       </S.IncomingCallInformation>
       <S.ButtonsContainer>
         <Button type="primary" onClick={handleAnswerCall}>

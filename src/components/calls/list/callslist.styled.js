@@ -4,9 +4,10 @@ export const ListContainer = styled.div`
   width: 280px;
   height: 400px;
   border: 1px solid black;
-  border-radius: 10px;
+  border-radius: 4px;
   background-color: rgb(228, 225, 225);
   top: 5px;
+  right: 6%;
   z-index: 10000;
   position: absolute;
   display: none;
@@ -54,7 +55,7 @@ export const CallInformation = styled.div`
   gap: 15px;
   margin-right: 40px;
   margin-left: 15px;
-  width: 160px;
+  width: 165px;
 `;
 export const ButtonContainer = styled.div`
   color: black;

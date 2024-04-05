@@ -1,17 +1,30 @@
 import PropTypes from "prop-types";
 import * as S from "./outgoingCall.styled";
 import { Button } from "antd";
-import { LoadingOutlined, RollbackOutlined } from "@ant-design/icons";
+import {
+  LoadingOutlined,
+  RollbackOutlined,
+  CloseCircleOutlined,
+  ApiOutlined,
+} from "@ant-design/icons";
 
-const OutGoingCall = ({ number, session, setOutGoingCall, sessionStatus }) => {
+const OutGoingCall = ({
+  number,
+  session,
+  setOutGoingCall,
+  sessionStatus,
+  remoteAudioRef,
+}) => {
   OutGoingCall.propTypes = {
-    number: PropTypes.object.string,
+    number: PropTypes.string,
     session: PropTypes.object,
     setOutGoingCall: PropTypes.func.isRequired,
     sessionStatus: PropTypes.bool.isRequired,
+    remoteAudioRef: PropTypes.string,
   };
 
   const handleDeclineCall = () => {
+    remoteAudioRef.current.pause();
     setOutGoingCall(false);
     session.terminate();
   };
@@ -20,11 +33,10 @@ const OutGoingCall = ({ number, session, setOutGoingCall, sessionStatus }) => {
     <>
       <S.OutGoingCallHeader>
         <h4>
-          {sessionStatus === "Busy" ? (
-            <RollbackOutlined />
-          ) : (
-            <LoadingOutlined />
-          )}
+          {sessionStatus === "Busy" && <RollbackOutlined />}
+          {sessionStatus === "In progress" && <LoadingOutlined />}
+          {sessionStatus === "Unavailable" && <CloseCircleOutlined />}
+          {sessionStatus === "Connecting" && <ApiOutlined />}
           <pre />
           {sessionStatus}...
         </h4>

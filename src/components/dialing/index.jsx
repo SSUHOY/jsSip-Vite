@@ -15,14 +15,11 @@ const Dialing = ({
   callOptions,
   phone,
   setOutGoingCall,
-  // setSession,
-  session,
 }) => {
   const [error, setError] = useState("");
   const [openList, setListIsOpen] = useState(false);
 
   const calls = JSON.parse(localStorage.getItem("callHistory")) || [];
-  console.log("🚀 ~ calls:", calls);
 
   Dialing.propTypes = {
     number: PropTypes.string.isRequired,
@@ -46,9 +43,6 @@ const Dialing = ({
   // вызов клиента
   const handleInitCall = () => {
     if (number) {
-      console.log("🚀 ~ handleInitCall ~ number:", number);
-
-      console.log("🚀 ~ handleInitCall ~ session:", session);
       phone?.call(`sip:${number}@voip.uiscom.ru`, callOptions);
       setOutGoingCall(true);
     }
@@ -76,6 +70,7 @@ const Dialing = ({
             openList={openList}
             setListIsOpen={setListIsOpen}
             calls={calls}
+            setNumber={setNumber}
           />
         </S.UserOnline>
       </div>
@@ -83,7 +78,6 @@ const Dialing = ({
         <Input
           type="text"
           value={number}
-          readOnly
           placeholder="Type sip number"
           style={{ width: 200, margin: 5 }}
         />

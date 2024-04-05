@@ -8,7 +8,14 @@ import {
   ArrowUpOutlined,
 } from "@ant-design/icons";
 
-const CallsListPopUp = ({ openList, setListIsOpen, calls }) => {
+const CallsListPopUp = ({ openList, setListIsOpen, calls, setNumber }) => {
+  CallsListPopUp.propTypes = {
+    openList: PropTypes.bool.isRequired,
+    setListIsOpen: PropTypes.func.isRequired,
+    calls: PropTypes.array.isRequired,
+    setNumber: PropTypes.func,
+  };
+
   const [selectedOption, setSelectedOption] = useState("outgoing");
 
   // Фильтрация входящих звонков
@@ -17,10 +24,10 @@ const CallsListPopUp = ({ openList, setListIsOpen, calls }) => {
   // Фильтрация исходящих звонков
   const outgoingCalls = calls.filter((call) => call.type === "outgoing");
 
-  CallsListPopUp.propTypes = {
-    openList: PropTypes.bool.isRequired,
-    setListIsOpen: PropTypes.func.isRequired,
-    calls: PropTypes.array.isRequired,
+  const handleTypeSelectedNumber = (value) => {
+    setNumber("");
+    setListIsOpen(false);
+    setNumber((prevNumber) => prevNumber + value);
   };
 
   return (
@@ -47,11 +54,14 @@ const CallsListPopUp = ({ openList, setListIsOpen, calls }) => {
               <S.CallItem key={item.id} data-value={item.number}>
                 <S.CallInformation>
                   <ArrowDownOutlined style={{ color: "black" }} />
-                  <p>{item.number}</p>
-                  <S.ItemTime>{item.time}</S.ItemTime>
+                  <div style={{ width: 50 }}>
+                    <p>{item.number}</p>
+                    <S.ItemTime>{item.time}</S.ItemTime>
+                  </div>
                 </S.CallInformation>
                 <S.ButtonContainer>
-                  <S.Button>
+                  <S.Button
+                    onClick={() => handleTypeSelectedNumber(item.number)}>
                     <PhoneOutlined />
                   </S.Button>
                 </S.ButtonContainer>
@@ -60,18 +70,18 @@ const CallsListPopUp = ({ openList, setListIsOpen, calls }) => {
           </S.CallsListContainer>
         ) : (
           <S.CallsListContainer>
-            {outgoingCalls.map((item) => (
-              <S.CallItem key={item.id} data-value={item.number}>
+            {outgoingCalls.map((item, i) => (
+              <S.CallItem key={`${item.id}_${i}`} data-value={item.number}>
                 <S.CallInformation>
                   <ArrowUpOutlined style={{ color: "black" }} />
                   <div style={{ width: 50 }}>
                     <p>{item.number}</p>
-
                     <S.ItemTime>{item.time}</S.ItemTime>
                   </div>
                 </S.CallInformation>
                 <S.ButtonContainer>
-                  <S.Button>
+                  <S.Button
+                    onClick={() => handleTypeSelectedNumber(item.number)}>
                     {" "}
                     <PhoneOutlined />
                   </S.Button>

@@ -2,7 +2,14 @@ import { Button } from "antd";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import * as S from "./current.styled";
-import { AudioMutedOutlined, AudioOutlined } from "@ant-design/icons";
+import {
+  AudioMutedOutlined,
+  AudioOutlined,
+  PhoneOutlined,
+  DisconnectOutlined,
+  LoadingOutlined,
+  CloseCircleOutlined,
+} from "@ant-design/icons";
 
 const CurrentCallUi = ({ session, sessionStatus, onClickMute, mute }) => {
   const [seconds, setSeconds] = useState(0);
@@ -16,19 +23,16 @@ const CurrentCallUi = ({ session, sessionStatus, onClickMute, mute }) => {
     setIncomeCall: PropTypes.func,
     onClickMute: PropTypes.func,
     mute: PropTypes.bool,
-    sessionStatus: PropTypes.string,
+    sessionStatus: PropTypes.bool.isRequired,
   };
 
   const handleDeclineCall = () => {
-    if (session) {
-      stopTimer();
-      session.terminate();
-    }
+    stopTimer();
+    session.terminate();
   };
 
   useEffect(() => {
     if (sessionStatus === "In Call") {
-      console.log("Старт таймера");
       startTimer();
     }
     let interval = null;
@@ -54,8 +58,12 @@ const CurrentCallUi = ({ session, sessionStatus, onClickMute, mute }) => {
     <>
       <div>
         <S.CurrentCallInformation>
+          {sessionStatus === "In Call" && <PhoneOutlined />}
+          {sessionStatus === "Ended" && <DisconnectOutlined />}
+          {sessionStatus === "In progress" && <LoadingOutlined />}
+          {sessionStatus === "Unavailable" && <CloseCircleOutlined />}
           <h4>{sessionStatus}...</h4>
-          <p>+{session._request.from._uri._user}</p>
+          <p>#{session._request.from._uri._user}</p>
         </S.CurrentCallInformation>
         <div>
           <S.CallTimer>

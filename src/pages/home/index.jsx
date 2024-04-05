@@ -21,13 +21,15 @@ const Home = () => {
 
   const remoteAudioRef = useRef(null);
 
-  const incomingCallAudio = new window.Audio("./tones/zvonok.mp3");
-  remoteAudioRef.current = incomingCallAudio;
-  incomingCallAudio.loop = true;
-  incomingCallAudio.crossOrigin = "anonymous";
-  var remoteAudio = new window.Audio();
-  remoteAudio.autoplay = true;
-  remoteAudio.crossOrigin = "anonymous";
+  // const incomingCallAudio = new window.Audio("./tones/zvonok.mp3");
+  // remoteAudioRef.current = incomingCallAudio;
+  // incomingCallAudio.loop = true;
+
+  // incomingCallAudio.crossOrigin = "anonymous";
+  // var remoteAudio = new window.Audio();
+  // remoteAudio.autoplay = true;
+  // remoteAudio.crossOrigin = "anonymous";
+
   // // ДЛЯ РЕГИСТРАЦИИ
   // const registeredUserData = JSON.parse(localStorage.getItem("userData"));
   // const socket = new JsSIP.WebSocketInterface(
@@ -41,8 +43,8 @@ const Home = () => {
 
   // Обработка событии исх. звонка
   const eventHandlers = {
-    progress: function (e) {
-      console.log("call is in progress", e);
+    progress: function () {
+      setSessionStatus("Ringing");
     },
     failed: function (e) {
       setSessionStatus(e.cause);
@@ -53,7 +55,7 @@ const Home = () => {
       }, 2000);
     },
     ended: function (e) {
-      console.log("call ended with cause: " + e.cause);
+      setSessionStatus("Call ended with cause:" + e.cause);
     },
     confirmed: function () {
       setSessionStatus("In Call");
@@ -98,22 +100,14 @@ const Home = () => {
     if (configuration.uri && configuration.password) {
       // JsSIP.debug.enable("JsSIP:*"); // more detailed debug output
       phone.on("registrationFailed", function () {
-        // alert("Registering on SIP server failed with error: " + ev.cause);
-        // configuration.uri = null;
-        // configuration.password = null;
-        // setUserOnline(false);
+        console.log("REGISTRATION FAILED");
         setUserOnline(false);
         updateUI();
       });
       phone.on("newRTCSession", function (ev) {
-        console.log("УСТАНОВКА СЕССИИ В СТЕЙТ");
         const session = ev.session;
         setSession(session);
-        setSessionStatus("");
-        // if (session) {
-        //   // hangup any existing call
-        //   session.terminate();
-        // }
+        setSessionStatus("Connecting");
 
         const completeSession = function () {
           setSession(null);
@@ -147,7 +141,7 @@ const Home = () => {
           };
           updateUI();
         });
-        session.on("failed", completeSession, console.log("SESSION FAILED"));
+        session.on("failed", completeSession);
         session.on("peerconnection", (e) => {
           setError("");
           const peerconnection = e.peerconnection;
@@ -171,19 +165,20 @@ const Home = () => {
 
         if (session._direction === "incoming") {
           remoteAudioRef.current.play();
+          remoteAudioRef.current.volume = 0.6;
           console.log("входящий звонок");
           setIncomeCall(true);
           addIncomingCall(session._request.from._uri._user);
 
           session.on("accepted", () => {
             setSessionStatus("In Call");
+            remoteAudioRef.current.pause();
             updateUI();
           });
         } else {
-          console.log("con", session.connection);
           addOutGoingCall(session._request.to._uri._user);
           session.connection.addEventListener("addstream", function (e) {
-            incomingCallAudio.pause();
+            remoteAudioRef.current.pause();
             remoteAudio.srcObject = e.stream;
           });
         }
@@ -205,18 +200,17 @@ const Home = () => {
         } else {
           console.log("исходящий звонок");
           setOutGoingCall(true);
-          setSessionStatus("in progress");
-          // addOutGoingCall(session._request.to._uri._user);
+          setSessionStatus("In progress");
         }
       } else if (session.isEstablished()) {
-        setSessionStatus("in Call");
-        incomingCallAudio.pause();
+        setSessionStatus("In Call");
+        // incomingCallAudio.pause();
       }
     } else {
-      incomingCallAudio.pause();
+      // incomingCallAudio.pause();
     }
   }
-  // // запуск телефона
+
   useEffect(() => {
     startPhone();
   }, []);
@@ -248,8 +242,6 @@ const Home = () => {
   }, [calls]);
 
   const muteMic = () => {
-    console.log("MUTE CLICKED");
-
     if (session.isMuted().audio) {
       session.unmute({ audio: true });
       setMicIsMuted(false);
@@ -267,7 +259,6 @@ const Home = () => {
         <Dialing
           userOnline={userOnline}
           number={number}
-          session={session}
           setNumber={setNumber}
           phone={phone}
           setOutGoingCall={setOutGoingCall}
@@ -282,6 +273,7 @@ const Home = () => {
             callOptions={callOptions}
             setIncomeCall={setIncomeCall}
             setCallIsAnswered={setCallIsAnswered}
+            remoteAudioRef={remoteAudioRef}
           />
         </>
       )}
@@ -293,6 +285,7 @@ const Home = () => {
             number={number}
             setCallIsAnswered={setCallIsAnswered}
             sessionStatus={sessionStatus}
+            remoteAudioRef={remoteAudioRef}
           />
         </>
       )}
@@ -326,7 +319,7 @@ const Home = () => {
           />
         </>
       )}
-      <audio ref={remoteAudioRef}></audio>
+      <audio loop ref={remoteAudioRef} src="/tones/zvonok.mp3" />
     </div>
   );
 };
