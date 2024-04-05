@@ -9,11 +9,11 @@ const CurrentCallUi = ({ session, sessionStatus, onClickMute, mute }) => {
   const [isActive, setIsActive] = useState(false);
 
   CurrentCallUi.propTypes = {
-    number: PropTypes.object.string,
+    number: PropTypes.string,
     session: PropTypes.object.isRequired,
     setOutGoingCall: PropTypes.func.isRequired,
     setCallIsAnswered: PropTypes.func.isRequired,
-    setIncomeCall: PropTypes.func.isRequired,
+    setIncomeCall: PropTypes.func,
     onClickMute: PropTypes.func,
     mute: PropTypes.bool,
     sessionStatus: PropTypes.string,

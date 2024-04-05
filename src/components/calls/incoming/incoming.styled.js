@@ -48,9 +48,9 @@ export const BellContainer = styled.div`
 `;
 
 export const ButtonsContainer = styled.div`
-  width: 150px;
+  width: 180px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-top: 25px;
+  margin-top: 20px;
 `;

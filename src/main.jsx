@@ -14,6 +14,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             Button: {
               colorPrimary: "#00B96B",
               colorPrimaryHover: "#07df85",
+              colorPrimaryActive: "#05b36a",
               defaultColor: "white",
               defaultBg: "#DB115A",
               defaultHoverBg: "#EE467F",

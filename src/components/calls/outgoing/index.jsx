@@ -6,16 +6,14 @@ import { LoadingOutlined, RollbackOutlined } from "@ant-design/icons";
 const OutGoingCall = ({ number, session, setOutGoingCall, sessionStatus }) => {
   OutGoingCall.propTypes = {
     number: PropTypes.object.string,
-    session: PropTypes.object.isRequired,
+    session: PropTypes.object,
     setOutGoingCall: PropTypes.func.isRequired,
     sessionStatus: PropTypes.bool.isRequired,
   };
 
   const handleDeclineCall = () => {
-    if (session) {
-      setOutGoingCall(false);
-      session.terminate();
-    }
+    setOutGoingCall(false);
+    session.terminate();
   };
 
   return (

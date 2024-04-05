@@ -7,10 +7,9 @@ import {
   PhoneOutlined,
   ArrowUpOutlined,
 } from "@ant-design/icons";
-import { Button } from "antd";
 
 const CallsListPopUp = ({ openList, setListIsOpen, calls }) => {
-  const [selectedOption, setSelectedOption] = useState("incoming");
+  const [selectedOption, setSelectedOption] = useState("outgoing");
 
   // Фильтрация входящих звонков
   const incomingCalls = calls.filter((call) => call.type === "incoming");
@@ -37,8 +36,8 @@ const CallsListPopUp = ({ openList, setListIsOpen, calls }) => {
           name="calls"
           id="calls-list-select"
           onChange={(e) => setSelectedOption(e.target.value)}>
-          <option value="incoming">Incoming</option>
           <option value="outgoing">Outgoing</option>
+          <option value="incoming">Incoming</option>
         </select>
       </div>
       <div>
@@ -48,12 +47,13 @@ const CallsListPopUp = ({ openList, setListIsOpen, calls }) => {
               <S.CallItem key={item.id} data-value={item.number}>
                 <S.CallInformation>
                   <ArrowDownOutlined style={{ color: "black" }} />
-                  <span>{item.number}</span>
+                  <p>{item.number}</p>
+                  <S.ItemTime>{item.time}</S.ItemTime>
                 </S.CallInformation>
                 <S.ButtonContainer>
-                  <Button type="primary">
+                  <S.Button>
                     <PhoneOutlined />
-                  </Button>
+                  </S.Button>
                 </S.ButtonContainer>
               </S.CallItem>
             ))}
@@ -64,13 +64,17 @@ const CallsListPopUp = ({ openList, setListIsOpen, calls }) => {
               <S.CallItem key={item.id} data-value={item.number}>
                 <S.CallInformation>
                   <ArrowUpOutlined style={{ color: "black" }} />
-                  <span>{item.number}</span>
+                  <div style={{ width: 50 }}>
+                    <p>{item.number}</p>
+
+                    <S.ItemTime>{item.time}</S.ItemTime>
+                  </div>
                 </S.CallInformation>
                 <S.ButtonContainer>
-                  <Button type="primary">
+                  <S.Button>
                     {" "}
                     <PhoneOutlined />
-                  </Button>
+                  </S.Button>
                 </S.ButtonContainer>
               </S.CallItem>
             ))}

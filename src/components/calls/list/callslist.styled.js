@@ -2,11 +2,11 @@ import styled from "styled-components";
 
 export const ListContainer = styled.div`
   width: 280px;
-  height: 420px;
+  height: 400px;
   border: 1px solid black;
   border-radius: 10px;
-  background-color: #e4e1e1;
-  top: 30px;
+  background-color: rgb(228, 225, 225);
+  top: 5px;
   z-index: 10000;
   position: absolute;
   display: none;
@@ -37,24 +37,42 @@ export const CallsListContainer = styled.div`
 
 export const CallItem = styled.div`
   display: flex;
-  justify-content: space-around;
   flex-direction: row;
-  gap: 55px;
   padding: 10px;
   align-items: center;
   border-bottom: 1px solid black;
   border-top: 1px solid black;
 `;
 
+export const ItemTime = styled.p`
+  color: #686868;
+`;
+
 export const CallInformation = styled.div`
-  width: 150px;
   color: black;
   display: flex;
-  gap: 64px;
+  gap: 15px;
+  margin-right: 40px;
+  margin-left: 15px;
   width: 160px;
 `;
 export const ButtonContainer = styled.div`
   color: black;
   display: flex;
   width: 50px;
+`;
+
+export const Button = styled.button`
+  width: 38px;
+  height: 28px;
+  background-color: #00b96b;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  &:hover {
+    background-color: #07df85;
+  }
+  &:active {
+    background-color: #05d36a;
+  }
 `;

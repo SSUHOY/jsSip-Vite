@@ -16,13 +16,13 @@ const Dialing = ({
   phone,
   setOutGoingCall,
   // setSession,
-  calls,
   session,
 }) => {
-  console.log("🚀 ~ number:", number);
-  console.log("🚀 ~ phone:", phone);
   const [error, setError] = useState("");
   const [openList, setListIsOpen] = useState(false);
+
+  const calls = JSON.parse(localStorage.getItem("callHistory")) || [];
+  console.log("🚀 ~ calls:", calls);
 
   Dialing.propTypes = {
     number: PropTypes.string.isRequired,
@@ -31,12 +31,13 @@ const Dialing = ({
     phone: PropTypes.object.isRequired,
     setSession: PropTypes.func.isRequired,
     setOutGoingCall: PropTypes.func.isRequired,
-    calls: PropTypes.array.isRequired,
+    calls: PropTypes.array,
     session: PropTypes.object,
   };
   // инпут набора номера
   const handleDialPadClick = (value) => {
     setNumber((prevNumber) => prevNumber + value);
+    setError("");
   };
   const handleClearInput = () => {
     setNumber("");
@@ -51,7 +52,7 @@ const Dialing = ({
       phone?.call(`sip:${number}@voip.uiscom.ru`, callOptions);
       setOutGoingCall(true);
     }
-    setError("Введите номер клиента");
+    setError("Type number");
   };
 
   const openCallsList = () => {
@@ -167,7 +168,7 @@ const Dialing = ({
             </S.DialPadChar>
           </S.DialPad>
         </div>
-        <div style={{ color: "coral" }}>{error}</div>
+        <div style={{ height: 20, margin: 5, color: "coral" }}>{error}</div>
         <Button type="primary" onClick={handleInitCall}>
           <PhoneOutlined />
         </Button>
