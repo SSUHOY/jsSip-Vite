@@ -19,8 +19,8 @@ const OutGoingCall = ({
     number: PropTypes.string,
     session: PropTypes.object,
     setOutGoingCall: PropTypes.func.isRequired,
-    sessionStatus: PropTypes.bool.isRequired,
-    remoteAudioRef: PropTypes.string,
+    sessionStatus: PropTypes.string,
+    remoteAudioRef: PropTypes.object,
   };
 
   const handleDeclineCall = () => {

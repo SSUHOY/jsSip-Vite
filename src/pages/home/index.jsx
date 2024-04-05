@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import JsSIP from "jssip";
+import PropTypes from "prop-types";
 import IncomingCall from "../../components/calls/incoming";
 import Dialing from "../../components/dialing";
 import OutGoingCall from "../../components/calls/outgoing";
 import CurrentCallUi from "../../components/current";
 import { formatCallDate } from "./helpers";
 
-const Home = () => {
+const Home = ({ userOnline, setUserOnline }) => {
   const [number, setNumber] = useState("");
   const [incomeCall, setIncomeCall] = useState(false);
   const [outGoingCall, setOutGoingCall] = useState(false);
-  const [userOnline, setUserOnline] = useState(false);
   const [error, setError] = useState("");
   const [callIsAnswered, setCallIsAnswered] = useState(false);
   const [session, setSession] = useState(null);
@@ -20,6 +20,12 @@ const Home = () => {
   const [mute, setMicIsMuted] = useState(false);
 
   const remoteAudioRef = useRef(null);
+
+  Home.propTypes = {
+    userOnline: PropTypes.bool,
+    setUserData: PropTypes.func,
+    setUserOnline: PropTypes.func,
+  };
 
   // const incomingCallAudio = new window.Audio("./tones/zvonok.mp3");
   // remoteAudioRef.current = incomingCallAudio;
@@ -165,7 +171,7 @@ const Home = () => {
 
         if (session._direction === "incoming") {
           remoteAudioRef.current.play();
-          remoteAudioRef.current.volume = 0.6;
+          remoteAudioRef.current.volume = 0.5;
           console.log("входящий звонок");
           setIncomeCall(true);
           addIncomingCall(session._request.from._uri._user);
@@ -206,14 +212,13 @@ const Home = () => {
         setSessionStatus("In Call");
         // incomingCallAudio.pause();
       }
-    } else {
-      // incomingCallAudio.pause();
     }
   }
 
   useEffect(() => {
     startPhone();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userOnline]);
 
   const addCall = (call) => {
     setCalls((prevCalls) => [...prevCalls, call]);

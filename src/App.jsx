@@ -11,15 +11,25 @@ function App() {
     password: "",
     server: "",
   });
+  const [userOnline, setUserOnline] = useState(false);
 
   return (
     <Routes>
       <Route
         path="/login"
-        element={<Login userData={userData} setUserData={setUserData} />}
+        element={
+          <Login
+            userData={userData}
+            setUserData={setUserData}
+            setUserOnline={setUserOnline}
+          />
+        }
       />
       <Route path="/" element={<Hello />} />
-      <Route path="/home" element={<Home />} />
+      <Route
+        path="/home"
+        element={<Home userOnline={userOnline} setUserOnline={setUserOnline} />}
+      />
     </Routes>
   );
 }

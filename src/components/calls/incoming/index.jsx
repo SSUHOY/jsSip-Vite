@@ -15,7 +15,7 @@ const IncomingCall = ({
     callOptions: PropTypes.object.isRequired,
     setIncomeCall: PropTypes.func.isRequired,
     setCallIsAnswered: PropTypes.func,
-    remoteAudioRef: PropTypes.string,
+    remoteAudioRef: PropTypes.object,
   };
 
   // отбой звонка

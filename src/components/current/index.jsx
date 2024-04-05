@@ -23,7 +23,7 @@ const CurrentCallUi = ({ session, sessionStatus, onClickMute, mute }) => {
     setIncomeCall: PropTypes.func,
     onClickMute: PropTypes.func,
     mute: PropTypes.bool,
-    sessionStatus: PropTypes.bool.isRequired,
+    sessionStatus: PropTypes.string,
   };
 
   const handleDeclineCall = () => {
