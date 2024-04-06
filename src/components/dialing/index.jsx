@@ -15,9 +15,10 @@ const Dialing = ({
   callOptions,
   phone,
   setOutGoingCall,
+  openList,
+  setListIsOpen,
 }) => {
   const [error, setError] = useState("");
-  const [openList, setListIsOpen] = useState(false);
 
   const calls = JSON.parse(localStorage.getItem("callHistory")) || [];
 
@@ -30,6 +31,8 @@ const Dialing = ({
     setOutGoingCall: PropTypes.func.isRequired,
     calls: PropTypes.array,
     session: PropTypes.object,
+    openList: PropTypes.bool,
+    setListIsOpen: PropTypes.func,
   };
   // инпут набора номера
   const handleDialPadClick = (value) => {
@@ -40,7 +43,6 @@ const Dialing = ({
     setNumber("");
   };
 
-  // вызов клиента
   const handleInitCall = () => {
     if (number) {
       phone?.call(`sip:${number}@voip.uiscom.ru`, callOptions);
@@ -71,6 +73,10 @@ const Dialing = ({
             setListIsOpen={setListIsOpen}
             calls={calls}
             setNumber={setNumber}
+            number={number}
+            callOptions={callOptions}
+            setOutGoingCall={setOutGoingCall}
+            phone={phone}
           />
         </S.UserOnline>
       </div>

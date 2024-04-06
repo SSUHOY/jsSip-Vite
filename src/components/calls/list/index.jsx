@@ -8,12 +8,23 @@ import {
   ArrowUpOutlined,
 } from "@ant-design/icons";
 
-const CallsListPopUp = ({ openList, setListIsOpen, calls, setNumber }) => {
+const CallsListPopUp = ({
+  openList,
+  setListIsOpen,
+  calls,
+  setNumber,
+  callOptions,
+  setOutGoingCall,
+  phone,
+}) => {
   CallsListPopUp.propTypes = {
-    openList: PropTypes.bool.isRequired,
-    setListIsOpen: PropTypes.func.isRequired,
+    openList: PropTypes.bool,
+    setListIsOpen: PropTypes.func,
     calls: PropTypes.array.isRequired,
     setNumber: PropTypes.func,
+    callOptions: PropTypes.object.isRequired,
+    setOutGoingCall: PropTypes.func,
+    phone: PropTypes.object.isRequired,
   };
 
   const [selectedOption, setSelectedOption] = useState("outgoing");
@@ -24,10 +35,15 @@ const CallsListPopUp = ({ openList, setListIsOpen, calls, setNumber }) => {
   // Фильтрация исходящих звонков
   const outgoingCalls = calls.filter((call) => call.type === "outgoing");
 
-  const handleTypeSelectedNumber = (value) => {
-    setNumber("");
-    setListIsOpen(false);
-    setNumber((prevNumber) => prevNumber + value);
+  const handleCallSelectedNumber = (value) => {
+    Call(value);
+    setNumber(value);
+    setListIsOpen(true);
+  };
+
+  const Call = (value) => {
+    phone?.call(`sip:${value}@voip.uiscom.ru`, callOptions);
+    setOutGoingCall(true);
   };
 
   return (
@@ -61,7 +77,7 @@ const CallsListPopUp = ({ openList, setListIsOpen, calls, setNumber }) => {
                 </S.CallInformation>
                 <S.ButtonContainer>
                   <S.Button
-                    onClick={() => handleTypeSelectedNumber(item.number)}>
+                    onClick={() => handleCallSelectedNumber(item.number)}>
                     <PhoneOutlined />
                   </S.Button>
                 </S.ButtonContainer>
@@ -71,7 +87,7 @@ const CallsListPopUp = ({ openList, setListIsOpen, calls, setNumber }) => {
         ) : (
           <S.CallsListContainer>
             {outgoingCalls.map((item, i) => (
-              <S.CallItem key={`${item.id}_${i}`} data-value={item.number}>
+              <S.CallItem key={i} data-value={item.number}>
                 <S.CallInformation>
                   <ArrowUpOutlined style={{ color: "black" }} />
                   <div style={{ width: 50 }}>
@@ -81,7 +97,7 @@ const CallsListPopUp = ({ openList, setListIsOpen, calls, setNumber }) => {
                 </S.CallInformation>
                 <S.ButtonContainer>
                   <S.Button
-                    onClick={() => handleTypeSelectedNumber(item.number)}>
+                    onClick={() => handleCallSelectedNumber(item.number)}>
                     {" "}
                     <PhoneOutlined />
                   </S.Button>

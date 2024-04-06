@@ -11,7 +11,14 @@ import {
   CloseCircleOutlined,
 } from "@ant-design/icons";
 
-const CurrentCallUi = ({ session, sessionStatus, onClickMute, mute }) => {
+const CurrentCallUi = ({
+  session,
+  sessionStatus,
+  onClickMute,
+  mute,
+  outGoingCall,
+  number,
+}) => {
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
 
@@ -24,6 +31,7 @@ const CurrentCallUi = ({ session, sessionStatus, onClickMute, mute }) => {
     onClickMute: PropTypes.func,
     mute: PropTypes.bool,
     sessionStatus: PropTypes.string,
+    outGoingCall: PropTypes.bool,
   };
 
   const handleDeclineCall = () => {
@@ -63,7 +71,11 @@ const CurrentCallUi = ({ session, sessionStatus, onClickMute, mute }) => {
           {sessionStatus === "In progress" && <LoadingOutlined />}
           {sessionStatus === "Unavailable" && <CloseCircleOutlined />}
           <h4>{sessionStatus}...</h4>
-          <p>#{session._request.from._uri._user}</p>
+          {outGoingCall ? (
+            <p>#{number}</p>
+          ) : (
+            <p>#{session._request.from._uri._user}</p>
+          )}
         </S.CurrentCallInformation>
         <div>
           <S.CallTimer>
