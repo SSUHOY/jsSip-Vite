@@ -34,8 +34,8 @@ const Home = ({ userOnline, setUserOnline }) => {
     },
     failed: function (e) {
       setSessionStatus(e.cause);
+      setOutGoingCall(false);
       setTimeout(() => {
-        setOutGoingCall(false);
         setCallIsAnswered(false);
         updateUI();
       }, 2000);
@@ -138,6 +138,7 @@ const Home = ({ userOnline, setUserOnline }) => {
         });
         session.on("ended", function () {
           setSessionStatus("Ended");
+          console.log("ЗВОНОК ЗАВЕРШЕН");
           setTimeout(() => {
             setOutGoingCall(false);
             setIncomeCall(false);
