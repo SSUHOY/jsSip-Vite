@@ -11,7 +11,6 @@ const Home = ({ userOnline, setUserOnline }) => {
   const [number, setNumber] = useState("");
   const [incomeCall, setIncomeCall] = useState(false);
   const [outGoingCall, setOutGoingCall] = useState(false);
-  const [error, setError] = useState("");
   const [callIsAnswered, setCallIsAnswered] = useState(false);
   const [session, setSession] = useState(null);
   const [calls, setCalls] = useState([]);
@@ -72,7 +71,7 @@ const Home = ({ userOnline, setUserOnline }) => {
       iceServers: [],
     },
     rtcOfferConstraints: {
-      offerToReceiveAudio: 1, // Принимаем только аудио
+      offerToReceiveAudio: 1,
       offerToReceiveVideo: 0,
     },
   };
@@ -95,8 +94,10 @@ const Home = ({ userOnline, setUserOnline }) => {
     remoteAudio.autoplay = true;
     remoteAudio.crossOrigin = "anonymous";
     if (configuration.uri && configuration.password) {
+      phone.on("registered", () => {
+        setUserOnline(true);
+      });
       phone.on("registrationFailed", function () {
-        console.log("REGISTRATION FAILED");
         setUserOnline(false);
         updateUI();
       });
@@ -117,15 +118,6 @@ const Home = ({ userOnline, setUserOnline }) => {
             data.response.body = null;
           }
         });
-        session.on("ended", function () {
-          setSessionStatus("Ended");
-          setTimeout(() => {
-            setOutGoingCall(false);
-            setIncomeCall(false);
-            setCallIsAnswered(false);
-            updateUI();
-          }, 2000);
-        });
 
         session.on("confirmed", function () {
           const localStream = session.connection.getLocalStreams()[0];
@@ -137,29 +129,33 @@ const Home = ({ userOnline, setUserOnline }) => {
           };
           updateUI();
         });
-        session.on("failed", completeSession);
-        session.on("peerconnection", (e) => {
-          setError("");
-          const peerconnection = e.peerconnection;
 
+        session.on("peerconnection", (e) => {
+          const peerconnection = e.peerconnection;
           peerconnection.onaddstream = function (e) {
-            console.log("addstream", e);
             remoteAudio.srcObject = e.stream;
             remoteAudio.play();
           };
-
           const remoteStream = new MediaStream();
-          console.log(peerconnection.getReceivers());
           peerconnection.getReceivers().forEach(function (receiver) {
-            console.log(receiver);
             remoteStream.addTrack(receiver.track);
           });
         });
-
+        session.on("failed", () => {
+          completeSession;
+        });
+        session.on("ended", function () {
+          setSessionStatus("Ended");
+          setTimeout(() => {
+            setOutGoingCall(false);
+            setIncomeCall(false);
+            setCallIsAnswered(false);
+            updateUI();
+          }, 2000);
+        });
         if (session._direction === "incoming") {
           remoteAudioRef.current.play();
           remoteAudioRef.current.volume = 0.5;
-          console.log("входящий звонок");
           setIncomeCall(true);
           addIncomingCall(session._request.from._uri._user);
 
@@ -184,10 +180,8 @@ const Home = ({ userOnline, setUserOnline }) => {
     if (session) {
       if (session.isInProgress()) {
         if (session._direction === "incoming") {
-          console.log("входящий звонок");
           setIncomeCall(true);
         } else {
-          console.log("исходящий звонок");
           setOutGoingCall(true);
           setSessionStatus("In progress");
         }
@@ -241,7 +235,6 @@ const Home = ({ userOnline, setUserOnline }) => {
 
   return (
     <div>
-      {error ? error : ""}
       {!incomeCall && !outGoingCall && !callIsAnswered && (
         <Dialing
           userOnline={userOnline}

@@ -4,11 +4,10 @@ import { useEffect, useState } from "react";
 import * as S from "./login.styled";
 import { Button, Input } from "antd";
 
-const Login = ({ userData, setUserData, setUserOnline }) => {
+const Login = ({ userData, setUserData }) => {
   Login.propTypes = {
     userData: PropTypes.object.isRequired,
     setUserData: PropTypes.func.isRequired,
-    setUserOnline: PropTypes.func,
   };
 
   const [error, setError] = useState("");
@@ -26,7 +25,6 @@ const Login = ({ userData, setUserData, setUserOnline }) => {
     ) {
       localStorage.setItem("userData", JSON.stringify(userData));
       navigate("/home");
-      setUserOnline(true);
     } else if (
       userData.password === "" &&
       userData.login === "" &&

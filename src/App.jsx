@@ -17,13 +17,7 @@ function App() {
     <Routes>
       <Route
         path="/login"
-        element={
-          <Login
-            userData={userData}
-            setUserData={setUserData}
-            setUserOnline={setUserOnline}
-          />
-        }
+        element={<Login userData={userData} setUserData={setUserData} />}
       />
       <Route path="/" element={<Hello />} />
       <Route

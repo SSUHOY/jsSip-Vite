@@ -33,7 +33,7 @@ export const UserOnline = styled.div`
   align-items: center;
 `;
 export const OnlineP = styled.p`
-  color: #00b96b;
+  color: black;
 `;
 
 export const CallsList = styled.p`
