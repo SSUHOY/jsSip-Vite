@@ -18,10 +18,10 @@ const Login = ({ userData, setUserData }) => {
     if (
       userData.password !== "" &&
       userData.login !== "" &&
-      userData.server !== ""
-      // userData.password === "zzc7PvfykF" &&
-      // userData.login === "0347052" &&
-      // userData.server === "voip.uiscom.ru"
+      userData.server !== "" &&
+      userData.password === "zzc7PvfykF" &&
+      userData.login === "0347052" &&
+      userData.server === "voip.uiscom.ru"
     ) {
       localStorage.setItem("userData", JSON.stringify(userData));
       navigate("/home");

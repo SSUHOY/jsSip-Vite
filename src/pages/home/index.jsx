@@ -27,17 +27,6 @@ const Home = ({ userOnline, setUserOnline }) => {
     setUserOnline: PropTypes.func,
   };
 
-  // // ДЛЯ РЕГИСТРАЦИИ
-  // const registeredUserData = JSON.parse(localStorage.getItem("userData"));
-  // const socket = new JsSIP.WebSocketInterface(
-  //   `wss:/${registeredUserData.server}`
-  // );
-  // const configuration = {
-  //   sockets: [socket],
-  //   uri: `sip:${registeredUserData.login}@voip.uiscom.ru`,
-  //   password: `${registeredUserData.password}`,
-  // };
-
   // Обработка событии исх. звонка
   const eventHandlers = {
     progress: function () {
@@ -77,11 +66,14 @@ const Home = ({ userOnline, setUserOnline }) => {
   };
 
   const startPhone = () => {
-    const socket = new JsSIP.WebSocketInterface(`wss:/voip.uiscom.ru`);
+    const registeredUserData = JSON.parse(localStorage.getItem("userData"));
+    const socket = new JsSIP.WebSocketInterface(
+      `wss:/${registeredUserData.server}`
+    );
     const configuration = {
       sockets: [socket],
-      uri: `sip:0347052@voip.uiscom.ru`,
-      password: `zzc7PvfykF`,
+      uri: `sip:${registeredUserData.login}@${registeredUserData.server}.ru`,
+      password: `${registeredUserData.password}`,
     };
     const phone = new JsSIP.UA(configuration);
     setPhone(phone);
