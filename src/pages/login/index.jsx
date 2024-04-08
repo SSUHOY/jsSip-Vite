@@ -16,26 +16,19 @@ const Login = ({ userData, setUserData }) => {
 
   const handleSetUserData = () => {
     if (
-      userData.password !== "" &&
-      userData.login !== "" &&
-      userData.server !== "" &&
+      userData.password === "" ||
+      userData.login === "" ||
+      userData.server === ""
+    ) {
+      setError("Enter all the required fields");
+    } else if (
       userData.password === "zzc7PvfykF" &&
       userData.login === "0347052" &&
       userData.server === "voip.uiscom.ru"
     ) {
       localStorage.setItem("userData", JSON.stringify(userData));
       navigate("/home");
-    } else if (
-      userData.password === "" &&
-      userData.login === "" &&
-      userData.server === ""
-    ) {
-      setError("Enter all the required fields");
-    } else if (
-      userData.password !== "zzc7PvfykF" &&
-      userData.login !== "0347052" &&
-      userData.server !== "voip.uiscom.ru"
-    ) {
+    } else {
       setError("User doesn't exist");
     }
   };
