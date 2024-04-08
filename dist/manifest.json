@@ -1,0 +1,17 @@
+{
+  "name": "jsSipCaller-Vite",
+  "version": "1.0.0",
+  "description": "jsSIP app for phone and video calls.",
+  "manifest_version": 3,
+  "icons": {
+    "16": "./icons/icon16.png",
+    "32": "./icons/icon32.png",
+    "64": "./icons/icon64.png",
+    "128": "./icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "index.html"
+  },
+  "permissions": ["scripting"],
+  "host_permissions": ["http://*/*", "https://*/*"]
+}

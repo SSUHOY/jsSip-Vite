@@ -25,3 +25,18 @@ export const DialPadChar = styled.div`
     background-color: #9d9d9d;
   }
 `;
+
+export const UserOnline = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+export const OnlineP = styled.p`
+  color: black;
+`;
+
+export const CallsList = styled.p`
+  color: "black";
+  padding-bottom: 10px;
+`;

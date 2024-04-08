@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import * as S from "./login.styled";
+import { Button, Input } from "antd";
 
 const Login = ({ userData, setUserData }) => {
   Login.propTypes = {
@@ -9,8 +10,6 @@ const Login = ({ userData, setUserData }) => {
     setUserData: PropTypes.func.isRequired,
   };
 
-  const [registered, setIsRegistered] = useState(false);
-  console.log("🚀 ~ Login ~ registered:", registered);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
@@ -19,14 +18,25 @@ const Login = ({ userData, setUserData }) => {
     if (
       userData.password !== "" &&
       userData.login !== "" &&
-      userData.server !== ""
+      userData.server !== "" &&
+      userData.password === "zzc7PvfykF" &&
+      userData.login === "0347052" &&
+      userData.server === "voip.uiscom.ru"
     ) {
       localStorage.setItem("userData", JSON.stringify(userData));
-      setIsRegistered(true);
       navigate("/home");
-    } else {
-      setError("Please enter all the required fields");
-      setIsRegistered(false);
+    } else if (
+      userData.password === "" &&
+      userData.login === "" &&
+      userData.server === ""
+    ) {
+      setError("Enter all the required fields");
+    } else if (
+      userData.password !== "zzc7PvfykF" &&
+      userData.login !== "0347052" &&
+      userData.server !== "voip.uiscom.ru"
+    ) {
+      setError("User doesn't exist");
     }
   };
 
@@ -35,19 +45,23 @@ const Login = ({ userData, setUserData }) => {
   }, [userData]);
 
   return (
-    <div>
+    <S.Wrapper>
+      {" "}
+      <div style={{ height: 20 }}>
+        {error ? <S.Error>{error}</S.Error> : ""}
+      </div>
       <S.InputsField>
-        <input
+        <Input
           type="text"
           placeholder="Login"
           onChange={(e) =>
             setUserData((prevUserData) => ({
               ...prevUserData,
-              login: e.target.value,
+              login: e.target.value.trim(),
             }))
           }
         />
-        <input
+        <Input
           type="password"
           placeholder="Password"
           onChange={(e) =>
@@ -57,25 +71,26 @@ const Login = ({ userData, setUserData }) => {
             }))
           }
         />
-        <input
+        <Input
           type="text"
           placeholder="Server"
           onChange={(e) =>
             setUserData((prevUserData) => ({
               ...prevUserData,
-              server: e.target.value,
+              server: e.target.value.trim(),
             }))
           }
         />
       </S.InputsField>
       <S.Buttons>
-        {error ? <p style={{ color: "coral" }}>{error}</p> : ""}
-        <S.Button onClick={handleSetUserData}>Register</S.Button>
+        <Button type="primary" onClick={handleSetUserData}>
+          Login
+        </Button>
         <Link to={"/"}>
-          <S.Button>Back to start</S.Button>
+          <Button>Back to start</Button>
         </Link>
       </S.Buttons>
-    </div>
+    </S.Wrapper>
   );
 };
 

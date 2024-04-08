@@ -1,5 +1,9 @@
 import styled from "styled-components";
 
+export const Wrapper = styled.div`
+  width: 200px;
+`;
+
 export const InputsField = styled.div`
   display: flex;
   flex-direction: column;
@@ -13,5 +17,6 @@ export const Buttons = styled.div`
   justify-content: space-between;
 `;
 
-export const Button = styled.button`
+export const Error = styled.span`
+  color: coral;
 `;
